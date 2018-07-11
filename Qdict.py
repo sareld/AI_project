@@ -4,15 +4,18 @@ import pandas as pd
 
 class Qdict(Q):
 
-    def __init__(self, discount, alpha ):
+    def __init__(self, discount = 0.8, alpha = 0.5 ):
         self.Q_dict = Counter()
         self.discount = discount
         self.alpha = alpha
 
 
-    def discreteSate(self,sate):
-        # TODO: implement
-        pass
+    def discreteSate(self,state):
+        pends = []
+        for pend in state:
+            pends.append((round(pend[0],2),round(pend[1],2)))
+
+        return tuple(pends)
 
     def getQValue(self, state, action):
         """

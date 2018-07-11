@@ -71,7 +71,7 @@ class ReinforcementAgent:
   def isInTesting(self):
       return not self.isInTraining()
 
-  def __init__(self, actionFn = None, numTraining=100, epsilon=0.5, alpha=0.5, gamma=1):
+  def __init__(self, actionFn = None, numTraining=100, epsilon=0.1, alpha=0.8, gamma=1):
     """
     actionFn: Function which takes a state and returns the list of legal actions
 
@@ -115,7 +115,8 @@ class Qlearner(ReinforcementAgent):
     def __init__(self, **args):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
-        self.myQ = Q()
+        self.myQ = Qdict()
+        self.sign = 1
 
 
     def getLegalActions(self):
@@ -184,9 +185,10 @@ class Qlearner(ReinforcementAgent):
           HINT: To pick randomly from a list, use random.choice(list)
         """
         # Pick Action
+
         legalActions = self.getLegalActions()
         #TODO: delete this line to implement none random action choice
-        return random.choice(legalActions)
+        #return random.choice(legalActions)
 
 
         if len(legalActions) == 0:

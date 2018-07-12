@@ -1,4 +1,5 @@
 from Q import *
+from Qdeep import *
 from Qdict import *
 import random, util
 
@@ -115,7 +116,7 @@ class Qlearner(ReinforcementAgent):
     def __init__(self, **args):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
-        self.myQ = Qdict()
+        self.myQ = Qdeep()
         self.sign = 1
 
 

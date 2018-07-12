@@ -6,9 +6,13 @@ import pymunk.pygame_util
 from main import SCREEN_SIZE
 
 
-RIGHT = "right"
-LEFT = "left"
-STAY = "stay"
+# RIGHT = "right"
+# LEFT = "left"
+# STAY = "stay"
+
+RIGHT = 1
+LEFT = 2
+STAY = 3
 
 class Cart(Qlearner):
 

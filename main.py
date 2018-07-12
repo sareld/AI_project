@@ -41,6 +41,7 @@ EPISODE_LENGTH = 500
 
 USE_GUI = True
 
+
 class CarEnvironment:
 
     def __init__(self):

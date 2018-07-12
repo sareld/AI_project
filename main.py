@@ -13,8 +13,9 @@ import pymunk.pygame_util
 
 import pickle
 
+QDICT_PICKLE_FILE = "q_dict.pkl"
+TRAIN_FILE = "train_dict.pkl"
 
-PICKLE_FILE = "pickle_q.pkl"
 
 CART_VELOCITY = 60
 CART_FRICTION = 1.3
@@ -30,14 +31,15 @@ ANGLE_RANGE = 0.1
 
 GOOD_REWORD = 2
 BAD_REWORD = -1
+DEFAULT_REWORD = -0.1
 
-FPS = 100
+FPS = 25
 
 DT = 25
 
-EPISODE_LENGTH = 1000
+EPISODE_LENGTH = 500
 
-USE_GUI = False
+USE_GUI = True
 
 class CarEnvironment:
 
@@ -59,7 +61,7 @@ class CarEnvironment:
 
         self.cart = Cart(self.space, 200, 1)
         try:
-            self.cart.myQ = pickle.load(open(PICKLE_FILE, "rb"))
+            self.cart.myQ = pickle.load(open(QDICT_PICKLE_FILE, "rb"))
         except:
             pass
 
@@ -68,13 +70,16 @@ class CarEnvironment:
         accu_rewards = []
         while self.running:
             accu_reward = 0
-            for i in range(EPISODE_LENGTH):
+            i=0
+            while i < EPISODE_LENGTH and self.running:
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         self.running = False
+                        break
                     elif event.type == KEYDOWN:
                         if  event.key == K_ESCAPE:
                             self.running = False
+                            break
 
                 state = self.cart.getState()
 
@@ -84,13 +89,15 @@ class CarEnvironment:
 
                 if(USE_GUI):
                     self.draw_screen()
+                    self.clock.tick(FPS)
+                    pygame.display.set_caption("fps: " + str(self.clock.get_fps()))
 
                 accu_reward += reward
-                if self.cart.body.position[0] < 0:
-                    self.cart.add_position(SCREEN_SIZE[0], 0)
+                #if self.cart.body.position[0] < 0:
+                #    self.cart.add_position(SCREEN_SIZE[0], 0)
 
-                if self.cart.body.position[0] > SCREEN_SIZE[0]:
-                    self.cart.add_position(-SCREEN_SIZE[0], 0)
+                #if self.cart.body.position[0] > SCREEN_SIZE[0]:
+                #    self.cart.add_position(-SCREEN_SIZE[0], 0)
 
                 for vel in self.cart.getVelocities():
                     if abs(vel) > 5.5:
@@ -99,9 +106,7 @@ class CarEnvironment:
 
                 #print(reward)
                 self.cart.update(state,action,next_state,reward)
-
-                self.clock.tick(FPS)
-                pygame.display.set_caption("fps: " + str(self.clock.get_fps()))
+                i+=1
 
             self.cart.reset()
             print("episode "+str(episode_num)+": "+str(accu_reward))
@@ -109,7 +114,8 @@ class CarEnvironment:
             episode_num += 1
         plt.plot(accu_rewards)
         plt.show()
-        pickle.dump(self.cart.myQ,open(PICKLE_FILE, "wb" ))
+        pickle.dump(self.cart.myQ, open(QDICT_PICKLE_FILE, "wb"))
+        pickle.dump(accu_rewards, open(TRAIN_FILE,"wb"))
 
 
     def draw_screen(self):
@@ -131,8 +137,6 @@ class CarEnvironment:
         else:
             self.cart.body.velocity = (0, 0)
 
-
-
         ### Update physics
         dt = 1.0 / DT
 
@@ -143,8 +147,10 @@ class CarEnvironment:
             if next_state[i][0] > -math.pi/2-ANGLE_RANGE and next_state[i][0] < -math.pi/2+ANGLE_RANGE:
                 reward = BAD_REWORD
             elif next_state[i][0] > math.pi/2-ANGLE_RANGE and next_state[i][0] < math.pi/2+ANGLE_RANGE \
-                    and abs(next_state[i][1]) < 1:
+                    and abs(next_state[i][1]) < 3:
                 reward = GOOD_REWORD
+            else:
+                reward = DEFAULT_REWORD
         return next_state, reward
 
 

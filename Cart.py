@@ -13,7 +13,7 @@ STAY = "stay"
 class Cart(Qlearner):
 
 
-    CART_VELOCITY = 100
+    CART_VELOCITY = 200
     CART_FRICTION = 1.3
 
     CART_POS = (SCREEN_SIZE[0]/2,SCREEN_SIZE[1]/2)
@@ -27,7 +27,7 @@ class Cart(Qlearner):
 
     def getLegalActions(self):
         legalActions = Cart.CART_ACTIONS.copy()
-        return legalActions
+        #return legalActions
         if(self.body.position.x <0):
             if LEFT in legalActions: legalActions.remove(LEFT)
         if (self.body.position.x > SCREEN_SIZE[0]):

@@ -13,7 +13,7 @@ class Qdict(Q):
     def discreteSate(self,state):
         pends = []
         for pend in state:
-            pends.append((round(pend[0],2),round(pend[1],2)))
+            pends.append((round(pend[0],1),round(pend[1],1)))
 
         return tuple(pends)
 

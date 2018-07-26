@@ -1,20 +1,26 @@
+from State import State
 from Qlearner import *
+import numpy as np
 
 import pymunk
 from pymunk import Vec2d
 import pymunk.pygame_util
 from main import SCREEN_SIZE
+from main import CYCLIC_SCREEN
 
 
-RIGHT = "right"
-LEFT = "left"
-STAY = "stay"
+RIGHT = 100
+LEFT = -100
+STAY = 0
 
 class Cart(Qlearner):
 
-
-    CART_VELOCITY = 200
+    CART_VELOCITY = 100
     CART_FRICTION = 1.3
+
+    INIT_RAND_RANGE = (-1,1)
+
+    INIT_SIDE = -1
 
     CART_POS = (SCREEN_SIZE[0]/2,SCREEN_SIZE[1]/2)
 
@@ -24,10 +30,12 @@ class Cart(Qlearner):
     CART_POINTS = [(50, -20), (-50, -20), (-50, 20), (50, 20)]
 
     CART_ACTIONS = [LEFT,RIGHT,STAY]
+    #CART_ACTIONS = [-100,100,0]
 
     def getLegalActions(self):
         legalActions = Cart.CART_ACTIONS.copy()
-        #return legalActions
+        if(CYCLIC_SCREEN):
+            return legalActions
         if(self.body.position.x <0):
             if LEFT in legalActions: legalActions.remove(LEFT)
         if (self.body.position.x > SCREEN_SIZE[0]):
@@ -55,7 +63,11 @@ class Cart(Qlearner):
             radius = 10
             moment = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
             ball_body = pymunk.Body(mass, moment)
-            ball_body.position = (Cart.CART_POS[0], Cart.CART_POS[1] - (i + 1) * self.pend_length)
+
+            ball_body.position = (Cart.CART_POS[0] +
+                                  (Cart.INIT_RAND_RANGE[1] - Cart.INIT_RAND_RANGE[0]) * np.random.random() +
+                                  Cart.INIT_RAND_RANGE[0],
+                                  Cart.CART_POS[1] + Cart.INIT_SIDE * (i + 1) * self.pend_length)
             ball_body.start_position = Vec2d(ball_body.position)
             shape = pymunk.Circle(ball_body, radius)
             self.balls.append(ball_body)
@@ -88,7 +100,7 @@ class Cart(Qlearner):
             angles.append(v.angle)
         return angles
 
-    def getVelocities(self):
+    def getAnglVelocities(self):
         ang_vels = []
         for i in range(self.pend_num):
             if (i == 0):
@@ -103,10 +115,17 @@ class Cart(Qlearner):
             ang_vels.append(ang_vel)
         return ang_vels
 
+    def getLineVelocities(self):
+        line_vel = []
+        for i in range(self.pend_num):
+            line_vel.append(self.balls[i].velocity.x)
+        return line_vel
+
     def getState(self):
         angles = self.getAngles()
-        vels = self.getVelocities()
-        return tuple(zip(angles,vels))
+        vels = self.getAnglVelocities()
+        line_vel = self.getLineVelocities()
+        return State(self.body.position.x,self.body.velocity.x,angles,vels,line_vel)
 
     def remove_cart(self):
         self.space.remove(self.body)
@@ -117,8 +136,13 @@ class Cart(Qlearner):
 
     def reset(self):
         self.body.position = Cart.CART_POS
+        self.body.velocity = (0,0)
         for i in range(self.pend_num):
-            self.balls[i].position = (Cart.CART_POS[0], Cart.CART_POS[1] - (i + 1) * self.pend_length)
+            self.balls[i].position = (Cart.CART_POS[0] +
+                                  (Cart.INIT_RAND_RANGE[1] - Cart.INIT_RAND_RANGE[0]) * np.random.random() +
+                                  Cart.INIT_RAND_RANGE[0],
+                                  Cart.CART_POS[1] + Cart.INIT_SIDE * (i + 1) * self.pend_length)
+
             self.balls[i].velocity = Vec2d(0,0)
 
     def add_position(self, x, y):

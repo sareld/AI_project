@@ -1,98 +1,10 @@
 from Q import *
-from Qdeep import *
 from Qdict import *
+from Qlinear import *
 import random, util
 
 
-class ReinforcementAgent:
-  """
-    Abstract Reinforcemnt Agent: A ValueEstimationAgent
-	  which estimates Q-Values (as well as policies) from experience
-	  rather than a model
-
-      What you need to know:
-		  - The environment will call
-		    observeTransition(state,action,nextState,deltaReward),
-		    which will call update(state, action, nextState, deltaReward)
-		    which you should override.
-      - Use self.getLegalActions(state) to know which actions
-		    are available in a state
-  """
-  ####################################
-  #    Override These Functions      #
-  ####################################
-
-  def update(self, state, action, nextState, reward):
-    """
-	    This class will call this function, which you write, after
-	    observing a transition and reward
-    """
-    pass
-
-  ####################################
-  #    Read These Functions          #
-  ####################################
-
-  def observeTransition(self, state,action,nextState,deltaReward):
-    """
-    	Called by environment to inform agent that a transition has
-    	been observed. This will result in a call to self.update
-    	on the same arguments
-
-    	NOTE: Do *not* override or call this function
-    """
-    self.episodeRewards += deltaReward
-    self.update(state,action,nextState,deltaReward)
-
-  def startEpisode(self):
-    """
-      Called by environment when new episode is starting
-    """
-    self.lastState = None
-    self.lastAction = None
-    self.episodeRewards = 0.0
-
-  def stopEpisode(self):
-    """
-      Called by environment when episode is done
-    """
-    if self.episodesSoFar < self.numTraining:
-      self.accumTrainRewards += self.episodeRewards
-    else:
-      self.accumTestRewards += self.episodeRewards
-    self.episodesSoFar += 1
-    if self.episodesSoFar >= self.numTraining:
-      # Take off the training wheels
-      self.epsilon = 0.0    # no exploration
-      self.alpha = 0.0      # no learning
-
-  def isInTraining(self):
-      return self.episodesSoFar < self.numTraining
-
-  def isInTesting(self):
-      return not self.isInTraining()
-
-  def __init__(self, actionFn = None, numTraining=100, epsilon=0.0, alpha=0.9, gamma=1):
-    """
-    actionFn: Function which takes a state and returns the list of legal actions
-
-    alpha    - learning rate
-    epsilon  - exploration rate
-    gamma    - discount factor
-    numTraining - number of training episodes, i.e. no learning after these many episodes
-    """
-    self.actionFn = actionFn
-    self.episodesSoFar = 0
-    self.accumTrainRewards = 0.0
-    self.accumTestRewards = 0.0
-    self.numTraining = int(numTraining)
-    self.epsilon = float(epsilon)
-    self.alpha = float(alpha)
-    self.discount = float(gamma)
-
-
-
-class Qlearner(ReinforcementAgent):
+class Qlearner():
     """
       Q-Learning Agent
 
@@ -113,11 +25,10 @@ class Qlearner(ReinforcementAgent):
           which returns legal actions
           for a state
     """
-    def __init__(self, **args):
-        "You can initialize Q-values here..."
-        ReinforcementAgent.__init__(self, **args)
-        self.myQ = Qdeep()
-        self.sign = 1
+    def __init__(self,epsilon=0.002):
+        self.epsilon = epsilon
+        self.myQ = Qdict()
+        #self.myQ = Qlinear(2)
 
 
     def getLegalActions(self):
@@ -150,6 +61,24 @@ class Qlearner(ReinforcementAgent):
 
         return max(valuse)
 
+    def getSoftMaxPolicy(self, state):
+        actions = self.getLegalActions()
+
+        if len(actions) == 0:
+            return None
+
+        m_v = -float('inf')
+        max_actions = []
+        values = []
+        for action in actions:
+            values.append(self.getQValue(state, action))
+
+        values = np.array(values)
+        values = np.power(np.e,values)/np.sum(np.power(np.e,values))
+
+        i = np.random.choice(np.arange(0,len(actions)),p=values)
+        return actions[i]
+
 
     def getPolicy(self, state):
         """
@@ -171,10 +100,27 @@ class Qlearner(ReinforcementAgent):
                 m_v = value
             elif value == m_v:
                 max_actions.append(action)
-
+        if len(max_actions) > 1:
+            #print("sum maxs")
+            pass
         return random.choice(max_actions)
 
-    def getAction(self, state):
+    def getSoftMaxAction(self,state, useEpsilon = True):
+        legalActions = self.getLegalActions()
+        # TODO: delete this line to implement none random action choice
+        # return random.choice(legalActions)
+
+
+        if len(legalActions) == 0:
+            return None
+
+        if useEpsilon and util.flipCoin(self.epsilon*0.0):
+            return random.choice(legalActions)
+
+        action = self.getSoftMaxPolicy(state)
+        return action
+
+    def getAction(self, state, useEpsilon = True):
         """
           Compute the action to take in the current state.  With
           probability self.epsilon, we should take a random action and
@@ -188,13 +134,10 @@ class Qlearner(ReinforcementAgent):
         # Pick Action
 
         legalActions = self.getLegalActions()
-        #TODO: delete this line to implement none random action choice
-        #return random.choice(legalActions)
-
 
         if len(legalActions) == 0:
             return None
-        if util.flipCoin(self.epsilon):
+        if useEpsilon and util.flipCoin(self.epsilon):
             return random.choice(legalActions)
 
         action = self.getPolicy(state)
@@ -209,4 +152,4 @@ class Qlearner(ReinforcementAgent):
           NOTE: You should never call this function,
           it will be called on your behalf
         """
-        self.myQ.update(state,action,self.getAction(nextState), nextState, reward)
+        self.myQ.update(state,action,self.getAction(nextState,False), nextState, reward, self.getLegalActions())

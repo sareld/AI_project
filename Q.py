@@ -8,7 +8,7 @@ class Q:
         """
         pass
 
-    def update(self, state, action, nextAction, nextState, reward):
+    def update(self, state, action, nextAction, nextState, reward, legal_moves):
         """
           The parent class calls this to observe a
           state = action => nextState and reward transition.

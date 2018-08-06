@@ -28,7 +28,7 @@ class Qlearner():
     def __init__(self,epsilon=0.002):
         self.epsilon = epsilon
         self.myQ = Qdict()
-        #self.myQ = Qlinear(2)
+        #self.myQ = Qlinear(1)
 
 
     def getLegalActions(self):
@@ -152,4 +152,5 @@ class Qlearner():
           NOTE: You should never call this function,
           it will be called on your behalf
         """
+
         self.myQ.update(state,action,self.getAction(nextState,False), nextState, reward, self.getLegalActions())

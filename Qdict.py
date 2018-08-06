@@ -5,7 +5,7 @@ import numpy as np
 
 ROUND_NUM = 1
 
-HEATMAP_SIZE = (np.pi*20,150)
+HEATMAP_SIZE = (int(np.pi*20),150)
 
 class Qdict(Q):
 
@@ -65,8 +65,8 @@ class Qdict(Q):
         return max(values)
 
     def update_heatmap(self,state,qval):
-        ang = round(state[-2]*10,0)#%(HEATMAP_SIZE[0]-1)
-        vel = round(state[-1]*10+HEATMAP_SIZE[1]/2,0)#%(HEATMAP_SIZE[1]-1)
+        ang = int(round(state[-2]*10,0))#%(HEATMAP_SIZE[0]-1)
+        vel = int(round(state[-1]*10+HEATMAP_SIZE[1]/2,0))#%(HEATMAP_SIZE[1]-1)
         if(vel >= 0 and vel < HEATMAP_SIZE[1]):
             self.heatmap[ang, vel] = qval
 

@@ -13,8 +13,8 @@ import pymunk.pygame_util
 
 import pickle
 
-QDICT_PICKLE_FILE = "q_dict_softmax.pkl"
-TRAIN_PICKLE_FILE = "train_dict_softmax.pkl"
+QDICT_PICKLE_FILE = "q_dict_greedy.pkl"
+TRAIN_PICKLE_FILE = "train_dict_greedy.pkl"
 
 
 SCREEN_SIZE = (1200,600)
@@ -87,8 +87,8 @@ class CarEnvironment:
 
                 state = self.cart.getState()
 
-                action = self.cart.getSoftMaxAction(state)
-                #action = self.cart.getAction(state)
+                #action = self.cart.getSoftMaxAction(state)
+                action = self.cart.getAction(state)
 
                 next_state, reward = self.doAction(action)
 
@@ -105,10 +105,9 @@ class CarEnvironment:
                     if self.cart.body.position[0] > SCREEN_SIZE[0]:
                         self.cart.add_position(-SCREEN_SIZE[0], 0)
 
-                for vel in self.cart.getAnglVelocities():
-                    if abs(vel) > 5.5:
-                        reward = -1
-                        break
+                # vel = self.cart.getAngles()[0]
+                # if abs(vel) > 3:
+                #     break
 
                 #print(reward)
                 self.cart.update(state,action,next_state,reward)
@@ -116,12 +115,12 @@ class CarEnvironment:
 
             self.cart.reset()
             print("episode "+str(episode_num)+": "+str(accu_reward))
-            if episode_num%2 == 0:
-                plt.figure(1)
-                plt.clf()
-                plt.imshow(self.cart.myQ.heatmap,
-                           interpolation='none', aspect='equal')
-                plt.pause(0.000000001)
+            # if episode_num%2 == 0:
+            #     plt.figure(1)
+            #     plt.clf()
+            #     plt.imshow(self.cart.myQ.heatmap,
+            #                interpolation='none', aspect='equal')
+            #     plt.pause(0.000000001)
             self.accu_rewards.append(accu_reward)
             episode_num += 1
 

@@ -13,8 +13,8 @@ import pymunk.pygame_util
 
 import pickle
 
-QDICT_PICKLE_FILE = "q_dict_softmax_noncyc.pkl"
-TRAIN_PICKLE_FILE = "train_dict_softmax_noncyc.pkl"
+QDICT_PICKLE_FILE = "q_dict_softmax.pkl"
+TRAIN_PICKLE_FILE = "train_dict_softmax.pkl"
 
 
 SCREEN_SIZE = (1200,600)
@@ -37,7 +37,7 @@ DT = 25
 EPISODE_LENGTH = 500
 
 USE_GUI = True
-CYCLIC_SCREEN = False
+CYCLIC_SCREEN = True
 
 
 class CarEnvironment:

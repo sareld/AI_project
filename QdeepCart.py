@@ -86,39 +86,39 @@ class CartPoleEnv(gym.Env):
         return np.array(self.state)
 
     def render(self, mode='human'):
-        screen_width = 600
-        screen_height = 400
+        screen_width = 1200
+        screen_height = 600
 
         world_width = self.x_threshold*2
         scale = screen_width/world_width
         carty = 100 # TOP OF CART
-        polewidth = 10.0
+        polewidth = 1.0
         polelen = scale * 1.0
         cartwidth = 50.0
-        cartheight = 30.0
+        cartheight = 20.0
 
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
-            l,r,t,b = -cartwidth/2, cartwidth/2, cartheight/2, -cartheight/2
-            axleoffset =cartheight/4.0
+            l,r,t,b = -cartwidth, cartwidth, cartheight, -cartheight
+            axleoffset = cartheight
             cart = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             self.carttrans = rendering.Transform()
             cart.add_attr(self.carttrans)
             self.viewer.add_geom(cart)
-            l,r,t,b = -polewidth/2,polewidth/2,polelen-polewidth/2,-polewidth/2
+            l,r,t,b = -polewidth, polewidth, polelen-polewidth, -polewidth
             pole = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             pole.set_color(.8,.6,.4)
             self.poletrans = rendering.Transform(translation=(0, axleoffset))
             pole.add_attr(self.poletrans)
             pole.add_attr(self.carttrans)
             self.viewer.add_geom(pole)
-            self.axle = rendering.make_circle(polewidth/2)
+            self.axle = rendering.make_circle(polewidth*10)
             self.axle.add_attr(self.poletrans)
             self.axle.add_attr(self.carttrans)
             self.axle.set_color(.5,.5,.8)
             self.viewer.add_geom(self.axle)
-            self.track = rendering.Line((0,carty), (screen_width,carty))
+            self.track = rendering.Line((0,carty),(screen_width,carty))
             self.track.set_color(0,0,0)
             self.viewer.add_geom(self.track)
 

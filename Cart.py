@@ -9,9 +9,16 @@ from main import SCREEN_SIZE
 from main import CYCLIC_SCREEN
 
 
+# RIGHT = "right"
+# LEFT = "left"
+# STAY = "stay"
+
+
 RIGHT = 100
 LEFT = -100
 STAY = 0
+
+CART_ACTIONS = [LEFT,RIGHT,STAY]
 
 class Cart(Qlearner):
 
@@ -20,20 +27,20 @@ class Cart(Qlearner):
 
     INIT_RAND_RANGE = (-1,1)
 
-    INIT_SIDE = 1
+    INIT_SIDE = -1
 
-    CART_POS = (SCREEN_SIZE[0]/2,SCREEN_SIZE[1]/2)
+    CART_POS = (SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2)
 
     FIRST_POLE_LENGTH = 150
     SECOND_POLE_LENGTH = 150
 
     CART_POINTS = [(50, -20), (-50, -20), (-50, 20), (50, 20)]
 
-    CART_ACTIONS = [LEFT,RIGHT,STAY]
+
     #CART_ACTIONS = [-100,100,0]
 
     def getLegalActions(self):
-        legalActions = Cart.CART_ACTIONS.copy()
+        legalActions = CART_ACTIONS.copy()
         if(CYCLIC_SCREEN):
             return legalActions
         if(self.body.position.x <0):

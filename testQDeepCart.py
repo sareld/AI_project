@@ -148,8 +148,8 @@ for each_game in range(10):
     scores.append(score)
 
 
-print('Average Score:', sum(scores) / len(scores))
-print('choice 1:{}  choice 0:{}'.format(choices.count(1) / len(choices), choices.count(0) / len(choices)))
-print(score_requirement)
+# print('Average Score:', sum(scores) / len(scores))
+# print('choice 1:{}  choice 0:{}'.format(choices.count(1) / len(choices), choices.count(0) / len(choices)))
+# print(score_requirement)
 
 

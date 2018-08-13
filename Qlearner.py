@@ -1,5 +1,6 @@
 from Q import *
 from Qdict import *
+from Qdeep import *
 from Qlinear import *
 import random, util
 
@@ -27,6 +28,7 @@ class Qlearner():
     """
     def __init__(self,epsilon=0.002):
         self.epsilon = epsilon
+        # self.myQ = Qdeep()
         self.myQ = Qdict()
         #self.myQ = Qlinear(1)
 

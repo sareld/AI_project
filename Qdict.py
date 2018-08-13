@@ -49,10 +49,6 @@ class Qdict(Q):
           it will be called on your behalf
         """
         state = self.createStateVector(state)
-
-
-
-        #correction = reward + self.discount*self.getMaxQValue(nextState,legalActions)-self.Q_dict[(state,action)]
         correction = reward + self.discount*self.getQValue(nextState,nextAction)-self.Q_dict[(state,action)]
         self.Q_dict[(state,action)] += self.alpha*correction
         self.update_heatmap(state,self.Q_dict[(state,action)])

@@ -5,6 +5,7 @@ from Cart import *
 import pygame
 from pygame.locals import *
 from pygame.color import *
+import time
 
 import matplotlib.pyplot as plt
 import pymunk
@@ -13,8 +14,8 @@ import pymunk.pygame_util
 
 import pickle
 
-QDICT_PICKLE_FILE = "q_dict_greedy.pkl"
-TRAIN_PICKLE_FILE = "train_dict_greedy.pkl"
+QDICT_PICKLE_FILE = "q_dict_epsilon=0.3.pkl"
+TRAIN_PICKLE_FILE = "train_dict_epsilon=0.3.pkl"
 
 
 SCREEN_SIZE = (1200,600)
@@ -32,11 +33,11 @@ PENDULUM_NUM = 1
 PENDULUM_LEN = 200
 
 
-FPS = 25
+FPS = 100
 DT = 25
 EPISODE_LENGTH = 500
 
-USE_GUI = True
+USE_GUI = False
 CYCLIC_SCREEN = True
 
 
@@ -58,6 +59,7 @@ class CarEnvironment:
         # disable the build in debug draw of collision point since we use our own code.
         self.draw_options.flags = self.draw_options.flags ^ pymunk.pygame_util.DrawOptions.DRAW_COLLISION_POINTS
         self.accu_rewards = []
+        self.time = []
         self.cart = Cart(self.space, PENDULUM_LEN, PENDULUM_NUM)
         try:
             self.cart.myQ = pickle.load(open(QDICT_PICKLE_FILE, "rb"))
@@ -68,6 +70,8 @@ class CarEnvironment:
 
     def main(self):
         episode_num = 0
+        sum = 0
+        t0 = time.time()
         while self.running:
             accu_reward = 0
             i=0
@@ -86,8 +90,7 @@ class CarEnvironment:
                             self.cart.balls[0].velocity += (100, 0)
 
                 state = self.cart.getState()
-
-                #action = self.cart.getSoftMaxAction(state)
+                # action = self.cart.getSoftMaxAction(state)
                 action = self.cart.getAction(state)
 
                 next_state, reward = self.doAction(action)
@@ -115,18 +118,37 @@ class CarEnvironment:
 
             self.cart.reset()
             print("episode "+str(episode_num)+": "+str(accu_reward))
-            # if episode_num%2 == 0:
-            #     plt.figure(1)
-            #     plt.clf()
-            #     plt.imshow(self.cart.myQ.heatmap,
-            #                interpolation='none', aspect='equal')
-            #     plt.pause(0.000000001)
-            self.accu_rewards.append(accu_reward)
+            if episode_num % 2 == 0:
+                plt.figure(1)
+                plt.clf()
+                plt.imshow(self.cart.myQ.heatmap, interpolation='none', aspect='equal')
+                plt.pause(0.000000001)
+
+            sum += accu_reward
+            # Graph - reward as function of time (sec) until 10000 episodes
+            # if (episode_num % 100) == 0:
+            #     t1 = time.time()
+            #     average = sum / 100
+            #     self.accu_rewards.append(average)
+            #     self.time.append(t1 - t0)
+            #     sum = 0
+            #     if episode_num == 10000:
+            #         self.running = False
+            # Graph - reward as function of time (sec)
+            if (episode_num % 100) == 0:
+                t1 = time.time()
+                average = sum/100
+                self.accu_rewards.append(average)
+                self.time.append(t1-t0)
+                sum = 0
+                if average >= 200:
+                    self.running = False
             episode_num += 1
 
 
         fig = plt.figure(2)
-        plt.plot(self.accu_rewards)
+        plt.title("reward (average until 200) as function of time (sec)")
+        plt.plot(self.time, self.accu_rewards)
         plt.show()
         pickle.dump(self.cart.myQ, open(QDICT_PICKLE_FILE, "wb"))
         pickle.dump(self.accu_rewards, open(TRAIN_PICKLE_FILE, "wb"))
@@ -147,7 +169,6 @@ class CarEnvironment:
             self.cart.body.velocity += (Cart.CART_VELOCITY, 0)
         else:
             self.cart.body.velocity = (0, 0)
-
 
         ### Update physics
         dt = 1.0 / DT

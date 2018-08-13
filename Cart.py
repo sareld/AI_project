@@ -20,7 +20,7 @@ class Cart(Qlearner):
 
     INIT_RAND_RANGE = (-1,1)
 
-    INIT_SIDE = -1
+    INIT_SIDE = 1
 
     CART_POS = (SCREEN_SIZE[0]/2,SCREEN_SIZE[1]/2)
 

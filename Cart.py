@@ -78,8 +78,8 @@ class Cart(Qlearner):
             self.joints.append(j)
             self.space.add(j)
 
-    def __init__(self, discount, alpha, space, pend_length, pend_num):
-        super(Cart, self).__init__(discount, alpha)
+    def __init__(self, discount, alpha,epsilon, space, pend_length, pend_num):
+        super(Cart, self).__init__(discount, alpha,epsilon)
         self.space = space
         self.pend_num = pend_num
         self.pend_length = pend_length

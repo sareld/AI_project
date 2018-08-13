@@ -25,16 +25,15 @@ class Qlearner():
           which returns legal actions
           for a state
     """
-    def __init__(self,discount, alpha,epsilon=0.002):
+
+    def __init__(self, discount, alpha, epsilon):
 
         self.epsilon = epsilon
         self.myQ = Qdict(discount, alpha)
-        #self.myQ = Qlinear(1)
-
+        # self.myQ = Qlinear(1)
 
     def getLegalActions(self):
         return []
-
 
     def getQValue(self, state, action):
         """
@@ -42,8 +41,7 @@ class Qlearner():
           Should return 0.0 if we never seen
           a state or (state,action) tuple
         """
-        return self.myQ.getQValue(state,action)
-
+        return self.myQ.getQValue(state, action)
 
     def getValue(self, state):
         """
@@ -58,7 +56,7 @@ class Qlearner():
             return 0.0
 
         for action in actions:
-            valuse.append(self.myQ.getQValue(state,action))
+            valuse.append(self.myQ.getQValue(state, action))
 
         return max(valuse)
 
@@ -75,11 +73,10 @@ class Qlearner():
             values.append(self.getQValue(state, action))
 
         values = np.array(values)
-        values = np.power(np.e,values)/np.sum(np.power(np.e,values))
+        values = np.power(np.e, values) / np.sum(np.power(np.e, values))
 
-        i = np.random.choice(np.arange(0,len(actions)),p=values)
+        i = np.random.choice(np.arange(0, len(actions)), p=values)
         return actions[i]
-
 
     def getPolicy(self, state):
         """
@@ -95,18 +92,18 @@ class Qlearner():
         m_v = -float('inf')
         max_actions = []
         for action in actions:
-            value = self.getQValue(state,action)
+            value = self.getQValue(state, action)
             if value > m_v:
                 max_actions = [action]
                 m_v = value
             elif value == m_v:
                 max_actions.append(action)
         if len(max_actions) > 1:
-            #print("sum maxs")
+            # print("sum maxs")
             pass
         return random.choice(max_actions)
 
-    def getSoftMaxAction(self,state, useEpsilon = True):
+    def getSoftMaxAction(self, state, useEpsilon=True):
         legalActions = self.getLegalActions()
         # TODO: delete this line to implement none random action choice
         # return random.choice(legalActions)
@@ -115,13 +112,13 @@ class Qlearner():
         if len(legalActions) == 0:
             return None
 
-        if useEpsilon and util.flipCoin(self.epsilon*0.0):
+        if useEpsilon and util.flipCoin(self.epsilon * 0.0):
             return random.choice(legalActions)
 
         action = self.getSoftMaxPolicy(state)
         return action
 
-    def getAction(self, state, useEpsilon = True):
+    def getAction(self, state, useEpsilon=True):
         """
           Compute the action to take in the current state.  With
           probability self.epsilon, we should take a random action and
@@ -154,4 +151,4 @@ class Qlearner():
           it will be called on your behalf
         """
 
-        self.myQ.update(state,action,self.getAction(nextState,False), nextState, reward, self.getLegalActions())
+        self.myQ.update(state, action, self.getAction(nextState, False), nextState, reward, self.getLegalActions())

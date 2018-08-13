@@ -30,6 +30,7 @@ DEFAULT_REWORD = -0.1
 
 PENDULUM_NUM = 1
 PENDULUM_LEN = 200
+EPSILON = 0.002
 
 FPS = 25
 DT = 25
@@ -61,7 +62,7 @@ class CarEnvironment:
         self.draw_options.flags = self.draw_options.flags ^ pymunk.pygame_util.DrawOptions.DRAW_COLLISION_POINTS
         self.accu_rewards = []
         self.time = []
-        self.cart = Cart(DISCOUNT, ALPHA, self.space, PENDULUM_LEN, PENDULUM_NUM)
+        self.cart = Cart(DISCOUNT, ALPHA,EPSILON, self.space, PENDULUM_LEN, PENDULUM_NUM)
         try:
             self.cart.myQ = pickle.load(open(QDICT_PICKLE_FILE, "rb"))
             self.accu_rewards = pickle.load(open(TRAIN_PICKLE_FILE, "rb"))
@@ -239,6 +240,20 @@ if __name__ == '__main__':
             USE_GUI = True
         DISCOUNT = args[5]
         ALPHA = args[6]
+    elif len(args)==8:
+        ALGO = args[1][1:]
+        if ALGO == "nn":
+            testQDeepCart.run()
+            exit()
+
+        if args[2] == '-y':
+            GRAPHS = True
+        FPS = int(args[3])
+        if args[4] == '-y':
+            USE_GUI = True
+        DISCOUNT = args[5]
+        ALPHA = args[6]
+        EPSILON = args[7]
     else:
         print("Error in the command line")
     env = CarEnvironment()

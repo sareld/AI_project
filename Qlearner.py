@@ -1,6 +1,5 @@
 from Q import *
 from Qdict import *
-from Qdeep import *
 from Qlinear import *
 import random, util
 
@@ -26,10 +25,10 @@ class Qlearner():
           which returns legal actions
           for a state
     """
-    def __init__(self,epsilon=0.002):
+    def __init__(self,discount, alpha,epsilon=0.002):
+
         self.epsilon = epsilon
-        # self.myQ = Qdeep()
-        self.myQ = Qdict()
+        self.myQ = Qdict(discount, alpha)
         #self.myQ = Qlinear(1)
 
 

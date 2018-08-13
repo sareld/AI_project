@@ -182,78 +182,78 @@ class CarEnvironment:
 if __name__ == '__main__':
     args = sys.argv
     if len(args) == 2:
-
         ALGO = args[1][1:]
         if ALGO == "nn":
             testQDeepCart.run()
             exit()
+
     elif len(args) == 3:
         ALGO = args[1][1:]
         if ALGO == "nn":
             testQDeepCart.run()
             exit()
-
         if args[2] == '-y':
             GRAPHS = True
+
     elif len(args) == 4:
         ALGO = args[1][1:]
         if ALGO == "nn":
             testQDeepCart.run()
             exit()
-
         if args[2] == '-y':
             GRAPHS = True
         FPS = int(args[3])
+
     elif len(args) == 5:
         ALGO = args[1][1:]
         if ALGO == "nn":
             testQDeepCart.run()
             exit()
-
         if args[2] == '-y':
             GRAPHS = True
         FPS = int(args[3])
         if args[4] == '-y':
             USE_GUI = True
+
     elif len(args) == 6:
         ALGO = args[1][1:]
         if ALGO == "nn":
             testQDeepCart.run()
             exit()
-
         if args[2] == '-y':
             GRAPHS = True
         FPS = int(args[3])
         if args[4] == '-y':
             USE_GUI = True
-        DISCOUNT = args[5]
+        DISCOUNT = float(args[5])
+
     elif len(args) == 7:
         ALGO = args[1][1:]
         if ALGO == "nn":
             testQDeepCart.run()
             exit()
-
         if args[2] == '-y':
             GRAPHS = True
         FPS = int(args[3])
         if args[4] == '-y':
             USE_GUI = True
-        DISCOUNT = args[5]
-        ALPHA = args[6]
+        DISCOUNT = float(args[5])
+        ALPHA = float(args[6])
+
     elif len(args)==8:
         ALGO = args[1][1:]
         if ALGO == "nn":
             testQDeepCart.run()
             exit()
-
         if args[2] == '-y':
             GRAPHS = True
         FPS = int(args[3])
         if args[4] == '-y':
             USE_GUI = True
-        DISCOUNT = args[5]
-        ALPHA = args[6]
-        EPSILON = args[7]
+        DISCOUNT = float(args[5])
+        ALPHA = float(args[6])
+        EPSILON = float(args[7])
+
     else:
         print("Error in the command line")
     env = CarEnvironment()

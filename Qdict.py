@@ -9,7 +9,8 @@ HEATMAP_SIZE = (int(np.pi*20),150)
 
 class Qdict(Q):
 
-    def __init__(self, discount = 0.99, alpha = 0.5):
+    def __init__(self, discount, alpha):
+
         self.Q_dict = Counter()
         self.discount = discount
         self.alpha = alpha
@@ -49,6 +50,10 @@ class Qdict(Q):
           it will be called on your behalf
         """
         state = self.createStateVector(state)
+
+
+
+        #correction = reward + self.discount*self.getMaxQValue(nextState,legalActions)-self.Q_dict[(state,action)]
         correction = reward + self.discount*self.getQValue(nextState,nextAction)-self.Q_dict[(state,action)]
         self.Q_dict[(state,action)] += self.alpha*correction
         self.update_heatmap(state,self.Q_dict[(state,action)])

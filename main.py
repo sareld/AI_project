@@ -23,7 +23,7 @@ SCREEN_SIZE = (1200, 600)
 ANGLE_RANGE = 0.02
 TOP_VEL = 200
 
-GOOD_REWORD = 1
+GOOD_REWORD = 5
 BAD_REWORD = -1
 DEFAULT_REWORD = -0.1
 
@@ -206,6 +206,7 @@ if __name__ == '__main__':
     parser.add_argument('--noswing',dest='NO_SWING',action='store_true',help="Pole starts up")
     parser.add_argument('--maxreward',dest='MAX_REWARD',help="maximum accumulative reward to get",type=int,default=math.inf)
     parser.add_argument('--maxepisodes',dest='MAX_EPISODES',help="maximum episodes to run",type=int,default=math.inf)
+    parser.add_argument('--maxtime',dest='MAX_TIME',help="maximum time to run in seconds",type=int,default=math.inf)
     args = sys.argv
 
     ARGS = parser.parse_args(args[1:])

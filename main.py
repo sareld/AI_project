@@ -119,21 +119,21 @@ class CarEnvironment:
             self.cart.reset()
             print("episode " + str(episode_num) + ": " + str(accu_reward))
             if GRAPHS:
-                if episode_num % 2 == 0:
-                    plt.figure(1)
-                    plt.clf()
-                    plt.imshow(self.cart.myQ.heatmap,
-                               interpolation='none', aspect='equal')
-                    plt.pause(0.000000001)
-                sum += accu_reward
-                if (episode_num % 100) == 0:
-
-                    t1 = time.time()
-                    self.accu_rewards.append(sum / 10)
-                    self.time.append(t1 - t0)
-                    sum = 0
-                    if episode_num == 10000:
-                        self.running = False
+                # if episode_num % 2 == 0:
+                #     plt.figure(1)
+                #     plt.clf()
+                #     plt.imshow(self.cart.myQ.heatmap,
+                #                interpolation='none', aspect='equal')
+                #     plt.pause(0.000000001)
+                # sum += accu_reward
+                # if (episode_num % 100) == 0:
+                #
+                #     t1 = time.time()
+                #     self.accu_rewards.append(sum / 10)
+                #     self.time.append(t1 - t0)
+                #     sum = 0
+                #     if episode_num == 10000:
+                #         self.running = False
                 episode_num += 1
 
         if GRAPHS:

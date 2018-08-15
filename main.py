@@ -124,9 +124,9 @@ class CarEnvironment:
                     try:
                         plt.figure(1)
                         plt.clf()
-                        plt.title("Heatmap " + str(sys.argv))
+                        plt.title("Heatmap" + str(sys.argv))
                         plt.imshow(self.cart.myQ.heatmap,
-                                   interpolation='none', aspect='equal')
+                                   interpolation='none', aspect='equal',extent=[-7.5,7.5,-math.pi, math.pi])
                         plt.pause(0.000000001)
                     except:
                         plt.close()
@@ -141,7 +141,6 @@ class CarEnvironment:
                         plt.figure(2)
                         plt.cla()
                         plt.title("Learning rate " + str(sys.argv))
-                        plt.title("Title. Change Accordingly.")
                         plt.ylabel("reward")
                         plt.xlabel("time (sec)")
                         plt.plot(self.time, self.accu_rewards)

@@ -14,8 +14,8 @@ import pymunk.pygame_util
 
 import pickle
 
-QDICT_PICKLE_FILE = "q_dict_epsilon=0.3.pkl"
-TRAIN_PICKLE_FILE = "train_dict_epsilon=0.3.pkl"
+QDICT_PICKLE_FILE = "q_dict_softmax.pkl"
+TRAIN_PICKLE_FILE = "train_dict_softmax.pkl"
 
 
 SCREEN_SIZE = (1200,600)
@@ -90,8 +90,8 @@ class CarEnvironment:
                             self.cart.balls[0].velocity += (100, 0)
 
                 state = self.cart.getState()
-                # action = self.cart.getSoftMaxAction(state)
-                action = self.cart.getAction(state)
+                action = self.cart.getSoftMaxAction(state)
+                # action = self.cart.getAction(state)
 
                 next_state, reward = self.doAction(action)
 
@@ -118,36 +118,37 @@ class CarEnvironment:
 
             self.cart.reset()
             print("episode "+str(episode_num)+": "+str(accu_reward))
-            if episode_num % 2 == 0:
-                plt.figure(1)
-                plt.clf()
-                plt.imshow(self.cart.myQ.heatmap, interpolation='none', aspect='equal')
-                plt.pause(0.000000001)
+            # if episode_num % 2 == 0:
+            #     plt.figure(1)
+            #     plt.clf()
+            #     plt.imshow(self.cart.myQ.heatmap, interpolation='none', aspect='equal')
+            #     plt.pause(0.000000001)
 
             sum += accu_reward
-            # Graph - reward as function of time (sec) until 10000 episodes
-            # if (episode_num % 100) == 0:
-            #     t1 = time.time()
-            #     average = sum / 100
-            #     self.accu_rewards.append(average)
-            #     self.time.append(t1 - t0)
-            #     sum = 0
-            #     if episode_num == 10000:
-            #         self.running = False
-            # Graph - reward as function of time (sec)
+            ## Graph - reward as function of time (sec) until 10000 episodes
             if (episode_num % 100) == 0:
                 t1 = time.time()
-                average = sum/100
+                average = sum / 100
                 self.accu_rewards.append(average)
-                self.time.append(t1-t0)
+                self.time.append(t1 - t0)
                 sum = 0
-                if average >= 200:
+                if episode_num == 10000:
                     self.running = False
+            ## Graph - reward as function of time (sec)
+            # if (episode_num % 100) == 0:
+            #     t1 = time.time()
+            #     average = sum/100
+            #     self.accu_rewards.append(average)
+            #     self.time.append(t1-t0)
+            #     sum = 0
+            #     if average >= 200:
+            #         self.running = False
             episode_num += 1
 
 
         fig = plt.figure(2)
-        plt.title("reward (average until 200) as function of time (sec)")
+        # plt.title("reward (average until 200) as function of time (sec)")
+        plt.title("reward as function of time (sec)")
         plt.plot(self.time, self.accu_rewards)
         plt.show()
         pickle.dump(self.cart.myQ, open(QDICT_PICKLE_FILE, "wb"))

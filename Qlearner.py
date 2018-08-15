@@ -26,7 +26,7 @@ class Qlearner():
           which returns legal actions
           for a state
     """
-    def __init__(self,epsilon=0.002):
+    def __init__(self,epsilon=0.02):
         self.epsilon = epsilon
         # self.myQ = Qdeep()
         self.myQ = Qdict()

@@ -140,8 +140,10 @@ class CarEnvironment:
                     try:
                         plt.figure(2)
                         plt.cla()
-                        plt.title("Learning rate "+str(sys.argv))
-                        plt.title("reward as function of time (sec)")
+                        plt.title("Learning rate " + str(sys.argv))
+                        plt.title("Title. Change Accordingly.")
+                        plt.ylabel("reward")
+                        plt.xlabel("time (sec)")
                         plt.plot(self.time, self.accu_rewards)
                         plt.show(block=False)
                         plt.pause(0.000000001)

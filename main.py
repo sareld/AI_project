@@ -149,8 +149,10 @@ class CarEnvironment:
                         plt.close()
 
                 sum = 0
-            # if episode_num == 10000:
-            #     self.running = False
+            if episode_num == ARGS.MAX_EPISODES:
+                 self.running = False
+            if len(self.accu_rewards)>0 and self.accu_rewards[-1] >= ARGS.MAX_REWARD:
+                self.running = False
             episode_num += 1
 
         if ARGS.MODEL_FILE!='':
@@ -201,6 +203,8 @@ if __name__ == '__main__':
     parser.add_argument('-e',dest='EPSILON',type=float,default=0.002,help="The epsilon parameter")
     parser.add_argument('--cyclic',dest='CYCLIC_SCREEN',action='store_true',help="Cyclic screen")
     parser.add_argument('--noswing',dest='NO_SWING',action='store_true',help="Pole starts up")
+    parser.add_argument('--maxreward',dest='MAX_REWARD',help="maximum accumulative reward to get",type=int,default=math.inf)
+    parser.add_argument('--maxepisodes',dest='MAX_EPISODES',help="maximum episodes to run",type=int,default=math.inf)
     args = sys.argv
 
     ARGS = parser.parse_args(args[1:])

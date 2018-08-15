@@ -191,16 +191,16 @@ class CarEnvironment:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Cart-Pole stabilizing simulation')
-    parser.add_argument('--ee',choices=['sf','eg'],default='eg',dest = 'EXPLORE_EXPLOIT')
-    parser.add_argument('-q',choices=['DeepQ','linearQ','Q'],default='Q',dest = 'Q_MODEL')
-    parser.add_argument('--gui',action='store_true' ,dest='USE_GUI')
-    parser.add_argument('--graphs',action='store_true', dest='GRAPHS')
-    parser.add_argument('-m',dest = 'MODEL_FILE',default='')
-    parser.add_argument('-d',dest='DISCOUNT',type=float,default=0.99)
-    parser.add_argument('-a',dest='ALPHA',type=float,default=0.5)
-    parser.add_argument('-e',dest='EPSILON',type=float,default=0.002)
-    parser.add_argument('--cyclic',dest='CYCLIC_SCREEN',action='store_true')
-    parser.add_argument('--noswing',dest='NO_SWING',action='store_true')
+    parser.add_argument('--ee',choices=['sf','eg'],default='eg',dest = 'EXPLORE_EXPLOIT',help="The exploration- expoitation method")
+    parser.add_argument('-q',choices=['DeepQ','linearQ','Q'],default='Q',dest = 'Q_MODEL', help="The Q has to be used")
+    parser.add_argument('--gui',action='store_true' ,dest='USE_GUI',help="Use graphics")
+    parser.add_argument('--graphs',action='store_true', dest='GRAPHS',help="Show graphs")
+    parser.add_argument('-m',dest = 'MODEL_FILE',default='',help="The model file")
+    parser.add_argument('-d',dest='DISCOUNT',type=float,default=0.99,help="The discount parameter")
+    parser.add_argument('-a',dest='ALPHA',type=float,default=0.5,help="The alpha parameter")
+    parser.add_argument('-e',dest='EPSILON',type=float,default=0.002,help="The epsilon parameter")
+    parser.add_argument('--cyclic',dest='CYCLIC_SCREEN',action='store_true',help="Cyclic screen")
+    parser.add_argument('--noswing',dest='NO_SWING',action='store_true',help="Pole starts up")
     args = sys.argv
 
     ARGS = parser.parse_args(args[1:])

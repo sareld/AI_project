@@ -103,15 +103,12 @@ class Qlearner():
             pass
         return random.choice(max_actions)
 
-    def getSoftMaxAction(self, state, useEpsilon=True):
+    def getSoftMaxAction(self, state):
         legalActions = self.getLegalActions()
 
 
         if len(legalActions) == 0:
             return None
-
-        if useEpsilon and util.flipCoin(self.epsilon * 0.0):
-            return random.choice(legalActions)
 
         action = self.getSoftMaxPolicy(state)
         return action

@@ -105,8 +105,6 @@ class Qlearner():
 
     def getSoftMaxAction(self, state, useEpsilon=True):
         legalActions = self.getLegalActions()
-        # TODO: delete this line to implement none random action choice
-        # return random.choice(legalActions)
 
 
         if len(legalActions) == 0:

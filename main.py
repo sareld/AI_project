@@ -1,4 +1,5 @@
 import math, sys, random
+import argparse
 
 import os
 
@@ -8,7 +9,6 @@ import pygame
 from pygame.locals import *
 from pygame.color import *
 import time
-import testQDeepCart
 import matplotlib.pyplot as plt
 import pymunk
 from pymunk import Vec2d
@@ -16,8 +16,7 @@ import pymunk.pygame_util
 
 import pickle
 
-QDICT_PICKLE_FILE = "q_softmax_greedy.pkl"
-TRAIN_PICKLE_FILE = "train_softmax_greedy.pkl"
+MODEL_FILE = ''
 
 SCREEN_SIZE = (1200, 600)
 
@@ -30,18 +29,14 @@ DEFAULT_REWORD = -0.1
 
 PENDULUM_NUM = 1
 PENDULUM_LEN = 200
-EPSILON = 0.002
+
 
 FPS = 25
 DT = 25
 EPISODE_LENGTH = 500
 
-USE_GUI = False
-GRAPHS = False
-ALGO = 'eg'
-DISCOUNT = 0.99
-ALPHA = 0.5
-CYCLIC_SCREEN = True
+
+ARGS = None
 
 
 class CarEnvironment:
@@ -62,18 +57,23 @@ class CarEnvironment:
         self.draw_options.flags = self.draw_options.flags ^ pymunk.pygame_util.DrawOptions.DRAW_COLLISION_POINTS
         self.accu_rewards = []
         self.time = []
-        self.cart = Cart(DISCOUNT, ALPHA,EPSILON, self.space, PENDULUM_LEN, PENDULUM_NUM)
+        self.cart = Cart(ARGS.DISCOUNT, ARGS.ALPHA, ARGS.EPSILON, self.space,
+                         PENDULUM_LEN, PENDULUM_NUM, ARGS.CYCLIC_SCREEN, ARGS.NO_SWING)
         try:
-            self.cart.myQ = pickle.load(open(QDICT_PICKLE_FILE, "rb"))
-            self.accu_rewards = pickle.load(open(TRAIN_PICKLE_FILE, "rb"))
-
+            if(ARGS.MODEL_FILE!=''):
+                (self.cart.myQ,(self.time,self.accu_rewards)) = pickle.load(open(ARGS.MODEL_FILE, "rb"))
+                print("model loaded")
         except:
-            print("dfd")
-            pass
+            print("no model found")
 
     def main(self):
-        episode_num = 0
+        episode_num = 1
         sum = 0
+        if(len(self.time)>0):
+            t_start = self.time[-1]
+        else:
+            t_start = 0
+
         t0 = time.time()
         while self.running:
             accu_reward = 0
@@ -93,20 +93,20 @@ class CarEnvironment:
                             self.cart.balls[0].velocity += (100, 0)
 
                 state = self.cart.getState()
-                if ALGO == 'sf':
+                if ARGS.EXPLORE_EXPLOIT == 'sf':
                     action = self.cart.getSoftMaxAction(state)
-                if ALGO == 'eg':
+                if ARGS.EXPLORE_EXPLOIT == 'eg':
                     action = self.cart.getAction(state)
 
                 next_state, reward = self.doAction(action)
 
-                if (USE_GUI):
+                if (ARGS.USE_GUI):
                     self.draw_screen()
                     self.clock.tick(FPS)
                     pygame.display.set_caption("fps: " + str(self.clock.get_fps()))
 
                 accu_reward += reward
-                if (CYCLIC_SCREEN):
+                if (ARGS.CYCLIC_SCREEN):
                     if self.cart.body.position[0] < 0:
                         self.cart.add_position(SCREEN_SIZE[0], 0)
 
@@ -118,31 +118,44 @@ class CarEnvironment:
 
             self.cart.reset()
             print("episode " + str(episode_num) + ": " + str(accu_reward))
-            if GRAPHS:
-                if episode_num % 2 == 0:
-                    plt.figure(1)
-                    plt.clf()
-                    plt.imshow(self.cart.myQ.heatmap,
-                               interpolation='none', aspect='equal')
-                    plt.pause(0.000000001)
-                sum += accu_reward
-                if (episode_num % 100) == 0:
 
-                    t1 = time.time()
-                    self.accu_rewards.append(sum / 10)
-                    self.time.append(t1 - t0)
-                    sum = 0
-                    if episode_num == 10000:
-                        self.running = False
-                episode_num += 1
+            if episode_num % 5 == 0:
+                if ARGS.GRAPHS:
+                    try:
+                        plt.figure(1)
+                        plt.clf()
+                        plt.title("Heatmap " + str(sys.argv))
+                        plt.imshow(self.cart.myQ.heatmap,
+                                   interpolation='none', aspect='equal')
+                        plt.pause(0.000000001)
+                    except:
+                        plt.close()
 
-        if GRAPHS:
-            fig = plt.figure(2)
-            plt.title("reward as function of time (sec)")
-            plt.plot(self.time, self.accu_rewards)
-            plt.show()
-        pickle.dump(self.cart.myQ, open(QDICT_PICKLE_FILE, "wb"))
-        pickle.dump(self.accu_rewards, open(TRAIN_PICKLE_FILE, "wb"))
+            sum += accu_reward
+            if (episode_num % 50) == 0 :
+                t1 = time.time()
+                self.accu_rewards.append(sum / 50)
+                self.time.append(t1 - t0 + t_start)
+                if ARGS.GRAPHS:
+                    try:
+                        plt.figure(2)
+                        plt.cla()
+                        plt.title("Learning rate "+str(sys.argv))
+                        plt.title("reward as function of time (sec)")
+                        plt.plot(self.time, self.accu_rewards)
+                        plt.show(block=False)
+                        plt.pause(0.000000001)
+                    except:
+                        plt.close()
+
+                sum = 0
+            # if episode_num == 10000:
+            #     self.running = False
+            episode_num += 1
+
+        if ARGS.MODEL_FILE!='':
+            pickle.dump((self.cart.myQ,(self.time,self.accu_rewards)), open(ARGS.MODEL_FILE, "wb"))
+
 
     def draw_screen(self):
         ### Clear screen
@@ -170,91 +183,37 @@ class CarEnvironment:
             if next_state.angles[i] > -math.pi / 2 - ANGLE_RANGE and next_state.angles[i] < -math.pi / 2 + ANGLE_RANGE:
                 reward += BAD_REWORD
             elif next_state.angles[i] > math.pi / 2 - ANGLE_RANGE and next_state.angles[i] < math.pi / 2 + ANGLE_RANGE:
-                # and abs(next_state.line_vel[i]) < TOP_VEL:
-                # and abs(next_state.angular_vel[i]) < TOP_VEL \
                 reward += GOOD_REWORD - abs(next_state.line_vel[i]) * 0.001
-                # print(reward)
             else:
                 reward += DEFAULT_REWORD
         return next_state, reward
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Cart-Pole stabilizing simulation')
+    parser.add_argument('--ee',choices=['sf','eg'],default='eg',dest = 'EXPLORE_EXPLOIT')
+    parser.add_argument('-q',choices=['DeepQ','linearQ','Q'],default='Q',dest = 'Q_MODEL')
+    parser.add_argument('--gui',action='store_true' ,dest='USE_GUI')
+    parser.add_argument('--graphs',action='store_true', dest='GRAPHS')
+    parser.add_argument('-m',dest = 'MODEL_FILE',default='')
+    parser.add_argument('-d',dest='DISCOUNT',type=float,default=0.99)
+    parser.add_argument('-a',dest='ALPHA',type=float,default=0.5)
+    parser.add_argument('-e',dest='EPSILON',type=float,default=0.002)
+    parser.add_argument('--cyclic',dest='CYCLIC_SCREEN',action='store_true')
+    parser.add_argument('--noswing',dest='NO_SWING',action='store_true')
     args = sys.argv
-    if len(args) == 2:
-        ALGO = args[1][1:]
-        if ALGO == "nn":
-            testQDeepCart.run()
-            exit()
 
-    elif len(args) == 3:
-        ALGO = args[1][1:]
-        if ALGO == "nn":
-            testQDeepCart.run()
-            exit()
-        if args[2] == '-y':
-            GRAPHS = True
+    ARGS = parser.parse_args(args[1:])
 
-    elif len(args) == 4:
-        ALGO = args[1][1:]
-        if ALGO == "nn":
-            testQDeepCart.run()
-            exit()
-        if args[2] == '-y':
-            GRAPHS = True
-        FPS = int(args[3])
 
-    elif len(args) == 5:
-        ALGO = args[1][1:]
-        if ALGO == "nn":
-            testQDeepCart.run()
-            exit()
-        if args[2] == '-y':
-            GRAPHS = True
-        FPS = int(args[3])
-        if args[4] == '-y':
-            USE_GUI = True
-
-    elif len(args) == 6:
-        ALGO = args[1][1:]
-        if ALGO == "nn":
-            testQDeepCart.run()
-            exit()
-        if args[2] == '-y':
-            GRAPHS = True
-        FPS = int(args[3])
-        if args[4] == '-y':
-            USE_GUI = True
-        DISCOUNT = float(args[5])
-
-    elif len(args) == 7:
-        ALGO = args[1][1:]
-        if ALGO == "nn":
-            testQDeepCart.run()
-            exit()
-        if args[2] == '-y':
-            GRAPHS = True
-        FPS = int(args[3])
-        if args[4] == '-y':
-            USE_GUI = True
-        DISCOUNT = float(args[5])
-        ALPHA = float(args[6])
-
-    elif len(args)==8:
-        ALGO = args[1][1:]
-        if ALGO == "nn":
-            testQDeepCart.run()
-            exit()
-        if args[2] == '-y':
-            GRAPHS = True
-        FPS = int(args[3])
-        if args[4] == '-y':
-            USE_GUI = True
-        DISCOUNT = float(args[5])
-        ALPHA = float(args[6])
-        EPSILON = float(args[7])
-
+    if ARGS.Q_MODEL == 'DeepQ':
+        import testQDeepCart
+        testQDeepCart.run()
+        exit()
     else:
-        print("Error in the command line")
-    env = CarEnvironment()
-    sys.exit(env.main())
+        env = CarEnvironment()
+        sys.exit(env.main())
+
+
+
+

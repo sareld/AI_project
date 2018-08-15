@@ -6,7 +6,6 @@ import pymunk
 from pymunk import Vec2d
 import pymunk.pygame_util
 from main import SCREEN_SIZE
-from main import CYCLIC_SCREEN
 
 RIGHT = 100
 LEFT = -100
@@ -17,9 +16,7 @@ class Cart(Qlearner):
     CART_VELOCITY = 100
     CART_FRICTION = 1.3
 
-    INIT_RAND_RANGE = (-1, 1)
-
-    INIT_SIDE = 1
+    INIT_RAND_RANGE = (0.0,0.0)
 
     CART_POS = (SCREEN_SIZE[0] / 2, SCREEN_SIZE[1] / 2)
 
@@ -34,7 +31,7 @@ class Cart(Qlearner):
 
     def getLegalActions(self):
         legalActions = Cart.CART_ACTIONS.copy()
-        if (CYCLIC_SCREEN):
+        if (self.cyclic):
             return legalActions
         if (self.body.position.x < 0):
             if LEFT in legalActions: legalActions.remove(LEFT)
@@ -63,10 +60,15 @@ class Cart(Qlearner):
             moment = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
             ball_body = pymunk.Body(mass, moment)
 
-            ball_body.position = (Cart.CART_POS[0] +
-                                  (Cart.INIT_RAND_RANGE[1] - Cart.INIT_RAND_RANGE[0]) * np.random.random() +
-                                  Cart.INIT_RAND_RANGE[0],
-                                  Cart.CART_POS[1] + Cart.INIT_SIDE * (i + 1) * self.pend_length)
+            random_alpha = (Cart.INIT_RAND_RANGE[1] - Cart.INIT_RAND_RANGE[0]) * np.random.random() + Cart.INIT_RAND_RANGE[0]
+            if(i == 0):
+                ball_body.position = (Cart.CART_POS[0] + self.pend_length*np.sin(random_alpha),
+                                      Cart.CART_POS[1] + self.side * (i + 1) * self.pend_length*np.cos(random_alpha))
+            else:
+                ball_body.position = (self.balls[i-1].positioin[0] + self.pend_length * np.sin(random_alpha),
+                                      self.balls[i - 1].positioin[1] + self.side * (i + 1) * self.pend_length * np.cos(
+                                          random_alpha))
+
             ball_body.start_position = Vec2d(ball_body.position)
             shape = pymunk.Circle(ball_body, radius)
             self.balls.append(ball_body)
@@ -78,8 +80,14 @@ class Cart(Qlearner):
             self.joints.append(j)
             self.space.add(j)
 
-    def __init__(self, discount, alpha,epsilon, space, pend_length, pend_num):
-        super(Cart, self).__init__(discount, alpha,epsilon)
+    def __init__(self, discount, alpha,epsilon, space, pend_length, pend_num, cyclic, no_swing):
+        super(Cart, self).__init__(discount, alpha, epsilon)
+        if no_swing:
+            self.side = 1
+        else:
+            self.side = -1
+
+        self.cyclic = cyclic
         self.space = space
         self.pend_num = pend_num
         self.pend_length = pend_length
@@ -136,10 +144,18 @@ class Cart(Qlearner):
         self.body.position = Cart.CART_POS
         self.body.velocity = (0, 0)
         for i in range(self.pend_num):
-            self.balls[i].position = (Cart.CART_POS[0] +
-                                      (Cart.INIT_RAND_RANGE[1] - Cart.INIT_RAND_RANGE[0]) * np.random.random() +
-                                      Cart.INIT_RAND_RANGE[0],
-                                      Cart.CART_POS[1] + Cart.INIT_SIDE * (i + 1) * self.pend_length)
+            random_alpha = (Cart.INIT_RAND_RANGE[1] - Cart.INIT_RAND_RANGE[0]) * np.random.random() + \
+                           Cart.INIT_RAND_RANGE[0]
+
+            if (i == 0):
+                self.balls[i].position = (Cart.CART_POS[0] + self.pend_length * np.sin(random_alpha),
+                                      Cart.CART_POS[1] + self.side * (i + 1) * self.pend_length * np.cos(
+                                          random_alpha))
+            else:
+                self.balls[i].position = (self.balls[i - 1].positioin[0] + self.pend_length * np.sin(random_alpha),
+                                      self.balls[i - 1].positioin[1] + self.side * (
+                                      i + 1) * self.pend_length * np.cos(
+                                          random_alpha))
 
             self.balls[i].velocity = Vec2d(0, 0)
 

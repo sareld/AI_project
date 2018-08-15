@@ -132,9 +132,9 @@ class CarEnvironment:
                         plt.close()
 
             sum += accu_reward
-            if (episode_num % 50) == 0 :
+            if (episode_num % 100) == 0 :
                 t1 = time.time()
-                self.accu_rewards.append(sum / 50)
+                self.accu_rewards.append(sum / 100)
                 self.time.append(t1 - t0 + t_start)
                 if ARGS.GRAPHS:
                     try:

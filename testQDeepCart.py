@@ -7,12 +7,13 @@ from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 from statistics import median, mean
 from collections import Counter
-
+import time
+import matplotlib.pyplot as plt
 
 LR = 1e-3
 env = CartPoleEnv()
 env.reset()
-goal_steps = 500
+goal_steps = 5000
 score_requirement = 50
 initial_games = 10000
 
@@ -119,34 +120,48 @@ def train_model(training_data, model=False):
               run_id='openai_learning')
     return model
 
-training_data = initial_population()
-model = train_model(training_data)
+def run():
+    t2=time.time()
+    training_data = initial_population()
+    model = train_model(training_data)
 
-scores = []
-choices = []
-for each_game in range(10):
-    score = 0
-    game_memory = []
-    prev_obs = []
-    env.reset()
-    for _ in range(goal_steps):
-        env.render()
+    print("learning time")
+    print((time.time())-t2)
 
-        if len(prev_obs) == 0:
-            action = random.randrange(0, 2)
-        else:
-            action = np.argmax(model.predict(prev_obs.reshape(-1, len(prev_obs), 1))[0])
+    scores = []
+    choices = []
+    sam_time=[]
+    t0=time.time()
+    for each_game in range(10):
+        t3=time.time()
+        score = 0
+        game_memory = []
+        prev_obs = []
+        env.reset()
+        for _ in range(goal_steps):
+            env.render()
 
-        choices.append(action)
+            if len(prev_obs) == 0:
+                action = random.randrange(0, 2)
+            else:
+                action = np.argmax(model.predict(prev_obs.reshape(-1, len(prev_obs), 1))[0])
 
-        new_observation, reward, done, info = env.step(action)
-        prev_obs = new_observation
-        game_memory.append([new_observation, action])
-        score += reward
-        if done: break
+            choices.append(action)
 
-    scores.append(score)
+            new_observation, reward, done, info = env.step(action)
+            prev_obs = new_observation
+            game_memory.append([new_observation, action])
+            score += reward
 
+            if done: break
+        print(time.time()-t3)
+        print(each_game)
+        scores.append(score)
+        sam_time.append(time.time()-t0)
+    fig = plt.figure(2)
+    plt.title("reward as function of time (sec)")
+    plt.plot(sam_time, scores)
+    plt.show()
 
 # print('Average Score:', sum(scores) / len(scores))
 # print('choice 1:{}  choice 0:{}'.format(choices.count(1) / len(choices), choices.count(0) / len(choices)))

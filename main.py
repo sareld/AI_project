@@ -141,7 +141,7 @@ class CarEnvironment:
                         plt.figure(2)
                         plt.cla()
                         plt.title("Learning rate " + str(sys.argv))
-                        plt.title("Softmax: max reward = 750\n" + "discount = 0.99, alpha = 0.5, no walls")
+                        plt.title("Epsilon-Greedy: discount = 0.99, alpha = 0.5, no walls, no swing")
                         plt.ylabel("reward")
                         plt.xlabel("time (sec)")
                         plt.plot(self.time, self.accu_rewards)

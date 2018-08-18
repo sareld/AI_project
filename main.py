@@ -148,6 +148,7 @@ class CarEnvironment:
                         plt.figure("Learning rate " + str(sys.argv))
                         plt.cla()
                         plt.title("Learning rate " + str(sys.argv))
+                        plt.title("Epsilon-Greedy: discount = 0.99, alpha = 0.5, no walls, no swing")
                         plt.ylabel("reward")
                         plt.xlabel("time (sec)")
                         plt.plot(self.time, self.accu_rewards)

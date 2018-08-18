@@ -122,11 +122,18 @@ class CarEnvironment:
             if episode_num % 5 == 0:
                 if ARGS.GRAPHS:
                     try:
-                        plt.figure(1)
+                        fig = plt.figure("HeatMap: " + str(sys.argv[1:]))
                         plt.clf()
-                        plt.title("Heatmap" + str(sys.argv))
-                        plt.imshow(self.cart.myQ.heatmap,
+                        plt.title("Heatmap")
+
+                        img = plt.imshow(self.cart.myQ.heatmap,
                                    interpolation='none', aspect='equal',extent=[-7.5,7.5,-math.pi, math.pi])
+
+                        cbar = plt.colorbar(img)
+                        cbar.set_label('Q value', rotation=270)
+
+                        plt.xlabel("angular velocity (rad)")
+                        plt.ylabel("angle (rad)")
                         plt.pause(0.000000001)
                     except:
                         plt.close()
@@ -138,7 +145,7 @@ class CarEnvironment:
                 self.time.append(t1 - t0 + t_start)
                 if ARGS.GRAPHS:
                     try:
-                        plt.figure(2)
+                        plt.figure("Learning rate " + str(sys.argv))
                         plt.cla()
                         plt.title("Learning rate " + str(sys.argv))
                         plt.ylabel("reward")

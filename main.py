@@ -58,7 +58,7 @@ class CarEnvironment:
         self.accu_rewards = []
         self.time = []
         self.cart = Cart(ARGS.DISCOUNT, ARGS.ALPHA, ARGS.EPSILON, self.space,
-                         PENDULUM_LEN, PENDULUM_NUM, ARGS.CYCLIC_SCREEN, ARGS.NO_SWING)
+                         PENDULUM_LEN, PENDULUM_NUM, ARGS.CYCLIC_SCREEN, ARGS.NO_SWING,ARGS.Q_MODEL)
         try:
             if(ARGS.MODEL_FILE!=''):
                 (self.cart.myQ,(self.time,self.accu_rewards)) = pickle.load(open(ARGS.MODEL_FILE, "rb"))

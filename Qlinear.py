@@ -8,7 +8,7 @@ class Qlinear(Q):
         self.alpha = alpha
         self.discount = discount
         self.pend_num = pendu_num
-        self.featurs_num = 6 + 6*pendu_num
+        self.featurs_num = 4*pendu_num
         self.W = np.zeros((1,self.featurs_num))
 
     def normalAngle(self,ang):
@@ -20,20 +20,12 @@ class Qlinear(Q):
 
     def feature(self,state,action):
         feature = np.zeros((self.featurs_num,1))
-        feature[0] = 0#state.cart_x**2
-        feature[1] = 0#state.cart_x
-        feature[2] = 0#state.cart_v**2
-        feature[3] = 0#state.cart_v
-        feature[4] = 0#action*state.cart_x
-        feature[5] = 0#action*state.cart_v
         j = 0
-        for i in range(6,self.pend_num*6+1,6):
-            feature[i] = 0#self.normalAngle(state.angles[j])**2
+        for i in range(self.pend_num*6+1,6):
             feature[i+1] = self.normalAngle(state.angles[j])
-            feature[i+2] = 0#state.angular_vel[j]**2
-            feature[i+3] = state.angular_vel[j]
-            feature[i+4] = action*state.angles[j]
-            feature[i+5] = action*state.angular_vel[j]
+            feature[i+2] = state.angular_vel[j]
+            feature[i+3] = action*state.angles[j]
+            feature[i+4] = action*state.angular_vel[j]
             j+=1
         return feature
 

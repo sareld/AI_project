@@ -80,8 +80,8 @@ class Cart(Qlearner):
             self.joints.append(j)
             self.space.add(j)
 
-    def __init__(self, discount, alpha,epsilon, space, pend_length, pend_num, cyclic, no_swing):
-        super(Cart, self).__init__(discount, alpha, epsilon)
+    def __init__(self, discount, alpha,epsilon, space, pend_length, pend_num, cyclic, no_swing, Qtype):
+        super(Cart, self).__init__(discount, alpha, epsilon, Qtype)
         if no_swing:
             self.side = 1
         else:

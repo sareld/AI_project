@@ -26,11 +26,13 @@ class Qlearner():
           for a state
     """
 
-    def __init__(self, discount, alpha, epsilon):
+    def __init__(self, discount, alpha, epsilon, Qtype):
 
         self.epsilon = epsilon
-        self.myQ = Qdict(discount, alpha)
-        # self.myQ = Qlinear(1)
+        if Qtype == 'Q':
+            self.myQ = Qdict(discount, alpha)
+        elif Qtype == 'linearQ':
+            self.myQ = Qlinear(1)
 
     def getLegalActions(self):
         return []
